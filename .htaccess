@@ -1,0 +1,108 @@
+
+# BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+
+# END WordPress
+
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+# Block wp-includes folder and files
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^wp-admin/includes/ - [F,L]
+RewriteRule !^wp-includes/ - [S=3]
+RewriteRule ^wp-includes/[^/]+\.php$ - [F,L]
+RewriteRule ^wp-includes/js/tinymce/langs/.+\.php - [F,L]
+RewriteRule ^wp-includes/theme-compat/ - [F,L]
+</IfModule>
+
+# hide directories
+Options -Indexes
+
+# Limit logins and admin by IP
+<Limit GET POST PUT>
+order deny,allow
+deny from all
+allow from 10.122.27.117
+</Limit>
+
+
+# Deny access to wp-config.php file
+<files wp-config.php>
+order allow,deny
+deny from all
+</files>
+
+# Disable the server signature
+ServerSignature Off
+
+# Disable directory browsing
+Options All -Indexes
+
+RewriteEngine On
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http://(www.)?ciber1maristak/.*$ [NC]
+RewriteRule .(jpeg|JPEG|jpe|JPE|jpg|JPG|gif|GIF|png|PNG)$ https://www.ciber1maristak.com/no-hotlinking.png [R,L]
+
+
+# Kill PHP Execution
+<Files *.php>
+deny from all
+</Files>
+
+
+# Restricts access to PHP files from plugin and theme directories
+RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file/to/exclude\.php
+RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory/to/exclude/
+RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
+RewriteCond %{REQUEST_URI} !^/wp-content/themes/file/to/exclude\.php
+RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory/to/exclude/
+RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
+
+Order deny,allow
+Deny from all
+<Files ~ ".(xml|css|jpe?g|png|gif|js)$">
+Allow from all
+</Files>
+
+
+# protege el archivo htaccess
+<files .htaccess>
+order allow,deny
+deny from all
+</files>
+
+
+# STRONG HTACCESS PROTECTION</code>
+<Files ~ "^.*\.([Hh][Tt][Aa])">
+order allow,deny
+deny from all
+satisfy all
+</Files>
+
+
+# protect from sql injection
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+
+
+# añadir block author scans
+
+<IfModule mod_headers.c>
+	Header set X-XSS-Protection "1; mode=block"
+	Header allways append X-Frame_options SAMEORIGIN
+	Header set X-Content-Type-Options nosniff
+</IfModule>
